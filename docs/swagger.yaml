@@ -1,0 +1,908 @@
+openapi: 3.0.0
+info:
+  title: FABRICA MICROSERVICIOS
+  description: Fabrica MicroServicio
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/
+    description: URL local
+  - url: 
+    description: URL development
+tags:
+  - name: Users
+    description: Rutas para User con password
+  - name: System
+    description: Ruta de permisos system
+  - name: Roles
+    description: Ruta para gestionar roles
+  - name: Cloud
+    description: Rutas para la administración de carga de archivos
+paths:
+  /:
+    get:
+      summary: Ruta para ver el estado de la aplicación y el entorno
+      responses:
+        "200":
+          description: Un Json con el estado de la aplicación y el entorno
+  /preregistro:
+    post:
+      summary: Ruta para agregar usuarios
+      tags:
+        - Usuarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuariosSchema"
+      responses:
+        "200":
+          description: Un Objecto JSON con el preregistro de un usuario
+  /registros:
+    put:
+      summary: Ruta para realizar el registro de un usuario
+      tags:
+        - Usuarios
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistroSchema"
+      responses:
+        "200":
+          description: un Objecto JSON del registro del usuario
+  /registrados:
+    get:
+      summary: Ruta para generar un .csv de usuarios registrados
+      tags:
+        - Usuarios
+      responses:
+        200:
+          responses:
+            "200":
+              content:
+                text/csv:
+                  schema:
+                    type: string
+  /registro:
+    get:
+      summary: Ruta que genera un Json paginado
+      tags:
+        - Usuarios
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Número de la página que se solicita
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: ordenamiento que se require para la paginación
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Número de items que se retornan
+      responses:
+        "200":
+          description: un Objecto JSON con usuario registrados
+  /cualidades:
+    put:
+      summary: Ruta para realizar el registro de las cualidades de un usuario
+      tags:
+        - Usuarios
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CualidadesSchema"
+      responses:
+        "200":
+          description: un Objecto JSON con los datos del usuario
+  /user/list:
+    get:
+      summary: Ruta para obtener los usuarios dela plataforma de manera paginada
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Número de la página que se solicita
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: ordenamiento que se require para la paginarían
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Número de items que se retornan
+      responses:
+        200:
+          description: Objecto respuesta de Mongoose-paginate-v2
+  /user/update/{userId}/status:
+    put:
+      summary: Ruta para realizar la actualización del status de un usuario
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: ID del usuario a buscar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStatusSchema"
+      responses:
+        "200":
+          description: un Objecto JSON con los datos del usuario
+  /user/update/password:
+    put:
+      summary: Ruta para Actualizar la contraseña
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserPasswordSchema"
+      responses:
+        "200":
+          description: un Objecto JSON con los datos del usuario
+  /jornada:
+    post:
+      summary: Ruta para realizar registro de nuevas jornadas
+      tags:
+        - Jornada
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "mañana,tarde o jornada completa"
+      responses:
+        200:
+          description: Array con todos los permisos
+  /branch:
+    post:
+      summary: Ruta para realizar el registro de una branch
+      tags:
+        - Jornada
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "mañana,tarde o noche"
+                address:
+                  type: string
+                  example: "Calle 123"
+                city:
+                  type: string
+                  example: "Ciudad"
+      responses:
+        200:
+          description: Array con todos los permisos
+  /shedule:
+    post:
+      summary: Ruta para realizar el registro de una shedule
+      tags:
+        - Jornada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                  format: uuid
+                  example: "id del usuaurio"
+                working_day:
+                  type: string
+                  format: uuid
+                  example: "id de la jornada"
+                branch:
+                  type: string
+                  format: uuid
+                  example: "id de la sucursal"
+      responses:
+        200:
+          description: Array con todos los permisos
+  /userShedule:
+    get:
+      summary: Ruta para obtener los usuarios registrados
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Número de la página que se solicita
+        - in: query
+          name: rol
+          schema:
+            type: string
+          description: buscar por id de rol
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: ordenamiento que se require para la paginación
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Número de items que se retornan
+      responses:
+        200:
+          description: Array de estudiantes
+  /detailUser/{idUser}:
+    get:
+      summary: Ruta para para buscar detalles de un estudiante
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idUser
+          schema:
+            type: string
+          description: id del usuario para buscar su detalle
+      responses:
+        200:
+          description: detalles del estudiante
+  /my-details:
+    get:
+      summary: Ruta para para mostrar detalles de un estudiante por token
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: detalles del estudiante
+  /updateworkingday/{user}:
+    put:
+      summary: ruta para modificar horarios
+      tags:
+        - Jornada
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: user
+          schema:
+            type: string
+          required: true
+          description: ID del usuario a buscar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                working_day:
+                  type: string
+                  format: uuid
+                  example: "id de la jornada"
+      responses:
+        "200":
+          description: Un Objecto JSON del producto solicitado
+  /system/policies:
+    get:
+      summary: Ruta para obtener los permisos pertenecientes a un servicio
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Array con todos los permisos
+  /system/modules:
+    get:
+      summary: Ruta para obtener los modulos de talentlogy
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Array con todos los modulos
+  /system/validate:
+    post:
+      summary: Ruta para validar los permisos de un rol
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidationSchema"
+      responses:
+        200:
+          description: Objeto con la validación
+  /system/permissions:
+    post:
+      summary: Ruta para asignar permisos a un rol
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPermmissionsSchema"
+      responses:
+        200:
+          description: Objeto con respuesta de la asignación de permisos
+  /system/permissions/{roleId}:
+    delete:
+      summary: Ruta para eliminar permisos de un rol específico
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: roleId
+          schema:
+            type: string
+          required: true
+          description: Id del rol que se quiere eliminar los permisos
+      responses:
+        200:
+          description: Devuelve un mensaje de permisos del rol eliminados
+  /system/remove-permissions:
+    delete:
+      summary: Ruta para eliminar permisos de un rol específico
+      tags:
+        - System
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Remove-permissionsSchema"
+      responses:
+        201:
+          description: success true
+  /roles/create:
+    post:
+      summary: Ruta encargada de crear roles
+      tags:
+        - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleSchema"
+      responses:
+        200:
+          description: Devuelve los datos de un role creado
+  /roles/update/{:id}:
+    put:
+      summary: Ruta encargada de editar un role
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: :id
+          schema:
+            type: string
+          description: Id del role que se modificara
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleSchema"
+      responses:
+        200:
+          description: Devuelve los datos de un role creado
+  /roles/all:
+    get:
+      summary: Ruta encargada de obtener una lista roles
+      tags:
+        - Roles
+      responses:
+        200:
+          description: Devuelve una lista de todos los roles almacenados
+  /roles/remove/{:id}:
+    delete:
+      summary: Ruta encargada de eliminar un role
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: :id
+          schema:
+            type: string
+          description: id del role que se eliminara
+      responses:
+        200:
+          description: Devuelve un mensaje de confirmacion sobre el rol eliminado
+  /roles/policies/{idRole}:
+    get:
+      summary: Ruta encargada de buscar los permisos de un role
+      tags:
+        - Roles
+      parameters:
+        - in: path
+          name: idRole
+          schema:
+            type: string
+          description: id del role
+      responses:
+        200:
+          description: Devuelve un mensaje con las policies del role
+  /roles/platforms:
+    get:
+      summary: Ruta encargada de buscar las plataformas de un rol y mostrar los permisos por cada una de ellas
+      tags:
+        - Roles
+      parameters:
+        - in: query
+          name: idRole
+          schema:
+            type: string
+          description: id del role a buscar sus modulos y respectivos permisos en ellos
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Devuelve las plataformas en las que tiene permiso y sus respectivos permisos
+  /carrera/create-carrera:
+    post:
+      summary: Ruta encargada de crear una carrera
+      tags:
+        - Carrera
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CareerSchema"
+      responses:
+        200:
+          description: Devuelve la carrera creada
+  /carrera/listAll:
+    get:
+      summary: Ruta encargada de traer todas las carreras
+      tags:
+        - Carrera
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Devuelve todas las carreras
+  /level/create-level:
+    post:
+      summary: Ruta encargada de crear un nivel
+      tags:
+        - Nivel
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LevelSchema"
+      responses:
+        200:
+          description: Devuelve el nivel creado
+  /level/list:
+    get:
+      summary: Ruta encargada de listar los niveles de una carreras
+      tags:
+        - Nivel
+      parameters:
+        - in: query
+          name: idCareer
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Devuelve los niveles de dicha carrera
+  /topic/create-topic:
+    post:
+      summary: Ruta encargada de crear los temas
+      tags:
+        - Tema
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopicSchema"
+      responses:
+        200:
+          description: Devuelve el tema creado
+  /topic/list-topic-for-level:
+    get:
+      summary: Ruta encargada de en listar los temas de un nivel
+      tags:
+        - Tema
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: idLevel
+          schema:
+            type: string
+          description: id del nivel
+      responses:
+        200:
+          description: Devuelve un arreglo con temas de dicho nivel
+  /section/list-section-for-topic:
+    get:
+      summary: Ruta encargada de en listar los secciones de un tema
+      tags:
+        - Sección
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: idTopic
+          schema:
+            type: string
+          description: id del tema
+      responses:
+        200:
+          description: Devuelve las secciones de dicho tema
+  /section/create-section:
+    post:
+      summary: Ruta encargada de crear las secciones
+      tags:
+        - Sección
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SectionSchema"
+      responses:
+        200:
+          description: Devuelve la sección creada
+  /section/{id}/status:
+    put:
+      summary: Ruta encargada de cambiar el estado de las secciones
+      tags:
+        - Sección
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: id de la sección a actualizar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SectionUpdateStatusSchema"
+      responses:
+        200:
+          description: Devuelve la sección creada
+  /guide/create-guide:
+    post:
+      summary: Ruta encargada de crear las guías
+      tags:
+        - Guía
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GuideSchema"
+      responses:
+        200:
+          description: Devuelve los datos de la guía creada
+  /guide/update-guide/{idGuide}:
+    put:
+      summary: Ruta encargada de actualizar las guías
+      tags:
+        - Guía
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idGuide
+          schema:
+            type: string
+          description: id de la guía a actualizar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGuideSchema"
+      responses:
+        200:
+          description: Devuelve la guia actualizada
+  /guide/author-guide/{idGuide}:
+    get:
+      summary: Ruta para para mostrar el autor de la guía
+      tags:
+        - Guía
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idGuide
+          schema:
+            type: string
+          description: id del autor
+      responses:
+        200:
+          description: detalles del autor de la guia
+  /exercise/create-exercise:
+    post:
+      summary: Ruta encargada de crear los ejercicios
+      tags:
+        - Ejercicio
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseSchema"
+      responses:
+        200:
+          description: Devuelve el ejercicio creado
+  /exercise/update-exercise/{idExercise}:
+    put:
+      summary: Ruta encargada de actualizar los ejercicios
+      tags:
+        - Ejercicio
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idExercise
+          schema:
+            type: string
+          description: id del ejercicio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateExerciseSchema"
+      responses:
+        200:
+          description: Devuelve el ejercicio actualizado
+  /author-exercise/{idExercise}:
+    get:
+      summary: Ruta para para mostrar el autor de los ejercicios
+      tags:
+        - Ejercicio
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idExercise
+          schema:
+            type: string
+          description: id del author
+      responses:
+        200:
+          description: detalles del autor del ejercicio
+  /userCareer/list/{user}:
+    get:
+      summary: Ruta encargada de en listar las carreras de un estudiante - teacher
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: user
+          schema:
+            type: string
+          description: id del student
+      responses:
+        200:
+          description: Devuelve la lista de las carreras
+  /userCareer/delete/{carrera}:
+    put:
+      summary: Ruta encargada de designar carreras a un usuario
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: carrera
+          schema:
+            type: string
+          description: id de la carrera
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDeleteCareerSchema"
+      responses:
+        200:
+          description: Devuelve la carrera asignada al usuario
+  /userCareer/list-career-student/:
+    get:
+      summary: Ruta encargada de en listar las carreras de un estudiante - student
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Devuelve la lista de las carreras que tiene acargo el estudiante
+  /userCareer/list-topic-level/{idLevel}:
+    get:
+      summary: Ruta encargada de en listar los topics de los levels de una carrera
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idLevel
+          schema:
+            type: string
+          description: id del level
+      responses:
+        200:
+          description: Devuelve la lista de los topic que estan en los level
+  /userCareer/list-section-topic/{idTopic}:
+    get:
+      summary: Ruta encargada de en listar los section de los topics de una carrera
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: path
+          name: idTopic
+          schema:
+            type: string
+          description: id del topic
+      responses:
+        200:
+          description: Devuelve la lista de los section que están en los level
+  /userCareer/create:
+    post:
+      summary: Ruta encargada de asignar carreras a un usuario
+      tags:
+        - UserCarrera
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCareerSchema"
+      responses:
+        200:
+          description: Devuelve la carrera asignada al usuario
+  /register:
+    post:
+      summary: Registra un usuario común
+      tags:
+        - Users
+      security:
+        - ApiKeyAuth: []
+      responses:
+        200:
+          description: Token de acceso del usuario registrado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSchema"
+  /login:
+    post:
+      summary: Ruta para loguearse
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthSchema"
+      responses:
+        "200":
+          description: Un Json con las caracteristicas
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-token
+  schemas:
+    AddPermmissionsSchema:
+      type: object
+      properties:
+        role:
+          type: string
+          example: "62c8c233b1590724ee4c1d4c"
+        policies:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            example: ["USER", "READ"]
+    RoleSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example:
+   
