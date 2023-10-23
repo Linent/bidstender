@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
-  title: FABRICA MICROSERVICIOS
-  description: Fabrica MicroServicio
+  title: BIDSTENDER MICROSERVICIOS
+  description: Bidstender MicroServicio
   version: 0.0.1
 servers:
   - url: http://localhost:8080/
     description: URL local
-  - url: 
+  - url: mongodb+srv://bidstender:8Y16i6SnkRkCytNT@cluster0.ma2iv8x.mongodb.net/
     description: URL development
 tags:
   - name: Users
